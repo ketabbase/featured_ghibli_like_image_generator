@@ -42,7 +42,7 @@ Application settings, including the Cloudflare API token and endpoint, window di
 api:
   cloudflare:
     account_id: "YOUR_ACCOUNT_ID" # Replace with your Cloudflare Account ID
-    model: "@cf/bytedance/stable-diffusion-xl-lightning"
+    model: "@cf/stabilityai/stable-diffusion-xl-base-1.0"
     token: "YOUR_API_TOKEN" # Replace with your Cloudflare API Token
     endpoint: "https://api.cloudflare.com/client/v4/accounts"
 
