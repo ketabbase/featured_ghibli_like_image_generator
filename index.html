@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Featured Image Generator</title>
+    <style>
+        /* CSS styles remain unchanged */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 0; 
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+         .header-title-container { 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px; 
+        }
+        #logo { 
+            height: 40px; 
+            margin-right: 15px; 
+        }
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        .input-section {
+            margin-bottom: 30px;
+        }
+        .input-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+        .abstract-input {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        .abstract-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-bottom: 30px;
+        }
+        .generate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .output-section {
+            text-align: center;
+        }
+        .output-section h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .image-container {
+            border: 2px dashed #e1e5e9;
+            border-radius: 10px;
+            padding: 40px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+        }
+        .placeholder-text {
+            color: #999;
+            font-size: 18px;
+        }
+        .generated-image {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #e1e5e9;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .download-btn {
+            margin-top: 0px;
+            padding: 10px 25px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+        .download-btn:hover {
+            background: #218838;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-title-container">
+                <img id="logo" src="https://uploadkon.ir/uploads/34eb24_25kb.png" alt="Logo">
+                <h1>Featured Image Generator</h1>
+            </div>
+            <p>Generate a featured Ghibli like image</p>
+        </div>
+
+        <div class="input-section">
+            <label for="abstract">Enter Research Keywords:</label>
+            <textarea
+                id="abstract"
+                class="abstract-input"
+                placeholder="Type or paste a research abstract here..."></textarea>
+        </div>
+
+        <button class="generate-btn" onclick="generatePoster()">
+            Generate Poster
+        </button>
+
+        <div class="output-section">
+            <h3>Generated Image</h3>
+            <div class="image-container" id="imageContainer">
+                <div class="placeholder-text">Your generated featured image will appear here</div>
+            </div>
+        </div>
+        <div class="footer">
+            made by KetabBase
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        async function generatePoster() {
+            const abstract = document.getElementById('abstract').value.trim();
+            const container = document.getElementById('imageContainer');
+            const generateBtn = document.querySelector('.generate-btn');
+
+            if (!abstract) {
+                alert('Please enter some keywords');
+                return;
+            }
+
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>Creating your artistic featured image...</div>
+                </div>
+            `;
+
+            try {
+                const data = await ipcRenderer.invoke('generate-image', abstract);
+                console.log("API response:", data);
+
+                if (!data || !data.result || !data.result.image_base64) {
+                    throw new Error("Invalid response from image generation API");
+                }
+
+                const imageUrl = `data:image/png;base64,${data.result.image_base64}`;
+
+                container.innerHTML = `
+                    <img src="${imageUrl}" alt="Generated Featured Image" class="generated-image" />
+                    <button class="download-btn" onclick="downloadImage('${imageUrl}')">Download Image</button>
+                `;
+            } catch (error) {
+                console.error('Error generating image:', error);
+                container.innerHTML = `<div class="placeholder-text" style="color: #dc3545;">Error: ${error.message}</div>`;
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate Image';
+            }
+        }
+
+        function downloadImage(url) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'research-poster.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+    
+</body>
+</html>
