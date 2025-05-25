@@ -1,7 +1,7 @@
 # featured_ghibli_like_image_generator
 Generate a featured Ghibli like image from some keywords for your text, article, film, ....
 
-Download the app : https://uploadkon.ir/uploads/4a1625_25Featured-Image-Generator-Setup-1-0-0.zip 
+Download the app : https://uploadkon.ir/uploads/215825_25Featured-Image-Generator-Setup-1-0-0.zip
 
 ![image](https://github.com/user-attachments/assets/bc790e3e-7e66-4aa8-b397-6f7206dcb291)
 
